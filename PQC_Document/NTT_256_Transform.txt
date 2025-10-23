@@ -1,0 +1,63 @@
+import numpy as np
+
+v1 = np.arange(1, 257)
+
+print("\nInput:")    
+for i in range(0, len(v1), 16):
+    print("".join(f"{x:6}" for x in v1[i:i+16]))
+
+n1 = 128
+psi = 2688 # Example value; replace with your specific value if different
+modulus = 3329  # Example modulus; replace with your specific value if different
+    
+# Function to compute power with modulus
+def mod_exp(base, exp, mod):
+    result = 1
+    while exp > 0:
+        if exp % 2 == 1:
+            result = (result * base) % mod
+        base = (base * base) % mod
+        exp //= 2
+    return result
+    
+    # Create the n x n matrix
+matrix = np.zeros((n1, n1), dtype=int)
+    
+for i in range(n1):
+    for j in range(n1):
+        exponent = 2 * i * j + i
+        matrix[i, j] = mod_exp(psi, exponent, modulus)
+            
+
+def split_even(v):
+    even = np.array([])  # Start with an empty NumPy array
+    for i in range(len(v)):
+        if (i % 2) == 0:
+            even = np.append(even, v[i])  # Append the even number to the array
+    return even
+
+    # Function to extract odd elements
+def split_odd(v):
+    odd = np.array([])  # Start with an empty NumPy array
+    for i in range(len(v)):
+        if (i % 2) != 0:
+            odd = np.append(odd, v[i])  # Append the odd number to the array
+    return odd
+        
+#parameters change v , n, psi, modulus
+f_even = split_even(v1)
+f_odd = split_odd(v1)
+
+z_even = np.dot(f_even, matrix) % modulus
+z_odd = np.dot(f_odd, matrix) % modulus
+
+NTT_trans = []
+
+for i in range(128):
+    NTT_trans.append(int(z_even[i]))
+    NTT_trans.append(int(z_odd[i]))
+  
+print("\nNTT Transform:")    
+for i in range(0, len(NTT_trans), 16):
+    print("".join(f"{x:6}" for x in NTT_trans[i:i+16]))
+    
